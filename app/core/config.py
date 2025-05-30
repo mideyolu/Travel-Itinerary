@@ -17,5 +17,11 @@ class Settings:
 
     # logging level
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    BASE_URL : str = os.getenv("BASE_URL", "https://serpapi.com/search")
+
+
+    class Config:
+        env_file = ".env"
+
 
 settings = Settings()
