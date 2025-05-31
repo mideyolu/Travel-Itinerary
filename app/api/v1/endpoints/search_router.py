@@ -36,7 +36,7 @@ async def search_flights(request: FlightRequest):
         query = {k: v for k, v in query.items() if v is not None}
 
         # Call the flight search service
-        result = await SerpAPIService.search_flights(query)
+        result = await SerpAPIService.search_flights(query=query)
 
         # Parse and return top 5 flight results
         return parse_flight_results(result)

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 async def make_serpapi_request(
-    engine: str, params: dict = None, error_context: str = "search"
+    engine: str, query: dict = None, error_context: str = "search"
 ):
     """
     Generic Function to make requests to the SerpAPI service.
@@ -22,7 +22,7 @@ async def make_serpapi_request(
     """
 
     # Always add these params
-    params.update({
+    query.update({
         "hl": "en",
         "api_key": settings.SERPAPI_API_KEY,
         "engine": engine,
@@ -30,7 +30,7 @@ async def make_serpapi_request(
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("https://serpapi.com/search", params=params)
+            response = await client.get("https://serpapi.com/search", params=query)
             response.raise_for_status()
             return response.json()
 

@@ -45,12 +45,6 @@ class RestaurantRequest(BaseModel):
     latitude: float = Field(..., example=37.7749, description="Latitude of location")
     longitude: float = Field(..., example=-122.4194, description="Longitude of location")
 
-# Itinerary Request Schema
-class ItineraryRequest(BaseModel):
-    flight: FlightRequest
-    hotel: HotelRequest
-    restaurant: RestaurantRequest
-
 
 # ------------------------------
 # Information Response Schema
@@ -78,6 +72,38 @@ class RestaurantInfo(BaseModel):
     image_url: Optional[str] = None  # Restaurant image/thumbnail
     rating: Optional[str] = None
     address: str
+
+
+# Itinerary Request Schema
+class ItineraryRequest(BaseModel):
+    destination: str
+    start_date: date
+    end_date: date
+
+    flights: list[FlightInfo]
+    hotels: list[HotelInfo]
+    restaurants: list[RestaurantInfo]
+
+
+class ItineraryItem(BaseModel):
+    day: int
+    date: str
+    morning: Optional[str] = None
+    afternoon: Optional[str] = None
+    evening: Optional[str] = None
+
+
+# AI Response Schema
+class AIResponse(BaseModel):
+    destination: str
+    start_date: date
+    end_date: date
+    duration: int  # number of days
+    selected_flight: Optional[FlightInfo] = None
+    selected_hotel: Optional[HotelInfo] = None
+    selected_restaurants: Optional[list[RestaurantInfo]] = None
+    itinerary: list[ItineraryItem]
+
 
 # Itinerary Information Schema
 class ItineraryInfo(BaseModel):

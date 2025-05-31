@@ -19,7 +19,7 @@ def parse_flight_results(result: dict) -> list[FlightInfo]:
                 airline_logo=flight.get("airline_logo") or group.get("airline_logo"),
                 travel_class=flight.get("travel_class", "N/A"),
                 price=str(group.get("price", "N/A")) + "USD",
-                duration=str(group.get("total_duration", "N/A")),
+                duration=str(group.get("total_duration", "N/A")) + " minutes",
                 departure=flight.get("departure_airport", {}).get("time", "N/A"),
                 arrival=flight.get("arrival_airport", {}).get("time", "N/A"),
             )
@@ -47,7 +47,7 @@ def parse_hotel_results(result: dict) -> list[HotelInfo]:
         )  # Use the first image thumbnail
         rate_info = prop.get("rate_per_night", {})
         price_per_night = rate_info.get("lowest", "N/A")
-        rating = str(prop.get("overall_rating", "N/A"))
+        rating = str(prop.get("overall_rating", "N/A")) + " ⭐"
 
         hotels.append(
             HotelInfo(
@@ -75,7 +75,7 @@ def parse_restaurant_results(result: dict) -> list[RestaurantInfo]:
             title=restaurant.get("title", "Unknown"),
             image_url=restaurant.get("thumbnail", None)
             or restaurant.get("photo", None),
-            rating=str(restaurant.get("rating", "N/A")),
+            rating=str(restaurant.get("rating", "N/A")) + " ⭐",
             address=restaurant.get("address", "N/A"),
         )
         for restaurant in top_five
