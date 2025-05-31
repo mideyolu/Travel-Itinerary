@@ -74,40 +74,28 @@ class RestaurantInfo(BaseModel):
     address: str
 
 
-# Itinerary Request Schema
-class ItineraryRequest(BaseModel):
-    destination: str
-    start_date: date
-    end_date: date
-
-    flights: list[FlightInfo]
-    hotels: list[HotelInfo]
-    restaurants: list[RestaurantInfo]
-
-
-class ItineraryItem(BaseModel):
-    day: int
-    date: str
-    morning: Optional[str] = None
-    afternoon: Optional[str] = None
-    evening: Optional[str] = None
-
-
 # AI Response Schema
 class AIResponse(BaseModel):
-    destination: str
-    start_date: date
-    end_date: date
-    duration: int  # number of days
-    selected_flight: Optional[FlightInfo] = None
-    selected_hotel: Optional[HotelInfo] = None
-    selected_restaurants: Optional[list[RestaurantInfo]] = None
-    itinerary: list[ItineraryItem]
+    flights: Optional[list[FlightInfo]] = None
+    hotels: Optional[list[HotelInfo]] = None
+    restaurants: Optional[list[RestaurantInfo]] = None
+    ai_flight_recommendation: Optional[str] = None
+    ai_hotel_recommendation: Optional[str] = None
+    ai_resturant_recommendation: Optional[str] = None
+
+    model_config={
+        "exclude_none" : True  # Exclude None values from the response
+    }
 
 
-# Itinerary Information Schema
-class ItineraryInfo(BaseModel):
+# Recommendation Request Schema
+class RecommendationRequest(BaseModel):
     flights: List[FlightInfo]
     hotels: List[HotelInfo]
-    resturants: List[RestaurantInfo]
-    ai_summary: Optional[str] = Field(None, description="AI-generated summary of the itinerary")
+    restaurants: List[RestaurantInfo]
+
+
+class RecommendationResponse(BaseModel):
+    ai_flight_recommendation: Optional[str]
+    ai_hotel_recommendation: Optional[str]
+    ai_restaurant_recommendation: Optional[str]

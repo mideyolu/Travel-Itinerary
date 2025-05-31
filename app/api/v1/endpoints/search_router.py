@@ -8,6 +8,8 @@ from app.models.schema import (
     HotelInfo,
     RestaurantRequest,
     RestaurantInfo,
+    RecommendationRequest,
+    RecommendationResponse,
 )
 from app.service.search_service import SerpAPIService
 from app.utils.custom_error import handle_custom_error
@@ -16,6 +18,7 @@ from app.utils.parser import (
     parse_hotel_results,
     parse_restaurant_results,
 )
+from app.service.ai_service import generate_recommendation
 
 router = APIRouter()
 
@@ -36,7 +39,7 @@ async def search_flights(request: FlightRequest):
         query = {k: v for k, v in query.items() if v is not None}
 
         # Call the flight search service
-        result = await SerpAPIService.search_flights(query=query)
+        result = await SerpAPIService.search_flights(query)
 
         # Parse and return top 5 flight results
         return parse_flight_results(result)
@@ -94,3 +97,28 @@ async def search_restaurants(request: RestaurantRequest):
         # Handle and log the error
         handle_custom_error(e)
         return []
+
+
+# -- AI Recommendation Endpoint
+@router.post("/recommendations", response_model=RecommendationResponse)
+async def get_ai_recommendations(request: RecommendationRequest):
+    try:
+        ai_flight = await generate_recommendation("flights", request.flights[:1])
+        ai_hotel = await generate_recommendation("hotels", request.hotels[:1])
+        ai_restaurant = await generate_recommendation(
+            "restaurants", request.restaurants[:1]
+        )
+
+        return RecommendationResponse(
+            ai_flight_recommendation=ai_flight,
+            ai_hotel_recommendation=ai_hotel,
+            ai_restaurant_recommendation=ai_restaurant,
+        )
+
+    except Exception as e:
+        handle_custom_error(e)
+        return RecommendationResponse(
+            ai_flight_recommendation="Failed to generate flight recommendation.",
+            ai_hotel_recommendation="Failed to generate hotel recommendation.",
+            ai_restaurant_recommendation="Failed to generate restaurant recommendation.",
+        )
