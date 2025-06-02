@@ -21,7 +21,7 @@ class FlightRequest(BaseModel):
     )
     # New default fields
     gl: str = Field("ng", description="Google location")
-    currency: str = Field("USD", description="Currency for pricing")
+
 
 # Hotel Request Schema
 class HotelRequest(BaseModel):
@@ -34,7 +34,6 @@ class HotelRequest(BaseModel):
     check_out_date: date = Field(..., description="Hotel check-out date")
     # New default fields
     gl: str = Field("ng", description="Google location")
-    currency: str = Field("USD", description="Currency for pricing")
 
 
 # Restaurant Request Schema
@@ -56,6 +55,7 @@ class FlightInfo(BaseModel):
     travel_class: str
     price: str
     duration: str
+    stops: int
     departure: str
     arrival: str
 
@@ -63,15 +63,20 @@ class FlightInfo(BaseModel):
 class HotelInfo(BaseModel):
     name: str
     image_url: Optional[str] = None  # Hotel image/thumbnail
-    price_per_night: str
     rating: Optional[str] = None
+    amenities: Optional[List[str]] = None  # List of hotel amenities
+    essential_info: Optional[str] = None
+    price_per_night: Optional[str] = None
 
 # Restaurant Information Schema
 class RestaurantInfo(BaseModel):
     title: str
     image_url: Optional[str] = None  # Restaurant image/thumbnail
-    rating: Optional[str] = None
     address: str
+    operating_hours: Optional[str] = None
+    extensions: Optional[List[dict]] = None
+    rating: Optional[str] = None
+    price: Optional[str] = None
 
 
 # AI Response Schema
@@ -83,10 +88,6 @@ class AIResponse(BaseModel):
     ai_hotel_recommendation: Optional[str] = None
     ai_resturant_recommendation: Optional[str] = None
 
-    model_config={
-        "exclude_none" : True  # Exclude None values from the response
-    }
-
 
 # Recommendation Request Schema
 class RecommendationRequest(BaseModel):
@@ -94,7 +95,7 @@ class RecommendationRequest(BaseModel):
     hotels: List[HotelInfo]
     restaurants: List[RestaurantInfo]
 
-
+# Recommendation Response Model
 class RecommendationResponse(BaseModel):
     ai_flight_recommendation: Optional[str]
     ai_hotel_recommendation: Optional[str]

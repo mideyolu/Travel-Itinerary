@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.utils.custom_error import CustomAPIError
 import logging
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,11 +27,13 @@ async def make_serpapi_request(
         "hl": "en",
         "api_key": settings.SERPAPI_API_KEY,
         "engine": engine,
+        "currency": "USD",
+
     })
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("https://serpapi.com/search", params=query)
+            response = await client.get(f"{settings.BASE_URL}", params=query)
             response.raise_for_status()
             return response.json()
 

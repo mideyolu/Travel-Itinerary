@@ -2,5 +2,4 @@ uvicorn
 fastapi
 pydantic
 serpapi
-crewai
 streamlit

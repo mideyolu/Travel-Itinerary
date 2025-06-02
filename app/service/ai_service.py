@@ -1,33 +1,32 @@
 # ai_service.py
-
 from typing import List
+from app.agents.ai_agents import flight_agent, hotel_agent, restaurant_agent
+from agno.utils.pprint import pprint_run_response
 
 
 async def generate_recommendation(category: str, items: List):
     if not items:
         return f"No {category} available for recommendation."
 
-    first = items[0]
+    items_dict = [
+        items.__dict__ if hasattr(items, "__dict__") else items for items in items
+    ]
 
-    if category == "flights":
-        return (
-            f"Try flying with {first.airline},\n"
-            f"departing at {first.departure}, "
-            f"arriving at {first.arrival}"
-            f"Costing around {first.price}."
-            f" Duration is {first.duration}."
-        )
+    prompt = f"Given the provided {category} options, please recommend the best one:\n\n{items_dict}"
 
-    elif category == "hotels":
-        return (
-            f"Consider staying at {first.name}, rated {first.rating} stars, "
-            f"Starting from {first.price_per_night}."
-        )
+    agent = {
+        "flights": flight_agent,
+        "hotels": hotel_agent,
+        "restaurants": restaurant_agent,
+    }.get(category)
 
-    elif category == "restaurants":
-        return (
-            f"You might enjoy dining at {first.title}, located at {first.address}, "
-            f"known for a {first.rating} stars."
-        )
+    if not agent:
+        return f"No AI recommendation available for {category} yet."
 
-    return f"No AI recommendation available for {category} yet."
+    response = agent.run(message=prompt)
+
+    formatted_response = pprint_run_response(response, markdown=False, show_time=True)
+
+    print(f"Generated {category} recommendation:", formatted_response)
+
+    return formatted_response

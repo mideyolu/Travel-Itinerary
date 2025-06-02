@@ -34,8 +34,7 @@ async def search_flights(request: FlightRequest):
             "outbound_date": request.outbound_date,
             "return_date": request.return_date,
             "gl": request.gl,  # Geo location
-            "currency": request.currency,
-        }
+            }
         query = {k: v for k, v in query.items() if v is not None}
 
         # Call the flight search service
@@ -59,7 +58,6 @@ async def search_hotels(request: HotelRequest):
             "q": request.arrival_id,  # Search location ( for destination airport)
             "check_in_date": str(request.check_in_date),
             "check_out_date": str(request.check_out_date),
-            "currency": request.currency,
             "gl": request.gl,
         }
         query = {k: v for k, v in query.items() if v is not None}
@@ -103,17 +101,18 @@ async def search_restaurants(request: RestaurantRequest):
 @router.post("/recommendations", response_model=RecommendationResponse)
 async def get_ai_recommendations(request: RecommendationRequest):
     try:
-        ai_flight = await generate_recommendation("flights", request.flights[:1])
-        ai_hotel = await generate_recommendation("hotels", request.hotels[:1])
-        ai_restaurant = await generate_recommendation(
-            "restaurants", request.restaurants[:1]
-        )
+        flight_data = await generate_recommendation("flights", request.flights)
+        hotel_data = await generate_recommendation("hotels", request.hotels)
+        restaurant_data = await generate_recommendation("restaurants", request.restaurants)
 
-        return RecommendationResponse(
-            ai_flight_recommendation=ai_flight,
-            ai_hotel_recommendation=ai_hotel,
-            ai_restaurant_recommendation=ai_restaurant,
+
+        result = RecommendationResponse(
+            ai_flight_recommendation=flight_data,
+            ai_hotel_recommendation=hotel_data,
+            ai_restaurant_recommendation=restaurant_data
         )
+        print(result.json())
+        return result
 
     except Exception as e:
         handle_custom_error(e)

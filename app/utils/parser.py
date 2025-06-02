@@ -1,5 +1,6 @@
 # parser.py
-
+import json
+import re
 from app.models.schema import FlightInfo, HotelInfo, RestaurantInfo
 
 
@@ -19,13 +20,14 @@ def parse_flight_results(result: dict) -> list[FlightInfo]:
                 airline_logo=flight.get("airline_logo") or group.get("airline_logo"),
                 travel_class=flight.get("travel_class", "N/A"),
                 price=str(group.get("price", "N/A")) + "USD",
+                stops=flight.get("stops", 0),
                 duration=str(group.get("total_duration", "N/A")) + " minutes",
                 departure=flight.get("departure_airport", {}).get("time", "N/A"),
                 arrival=flight.get("arrival_airport", {}).get("time", "N/A"),
             )
         )
 
-    return flights[:5]  # Return only the top 5 results
+    return flights
 
 
 def parse_hotel_results(result: dict) -> list[HotelInfo]:
@@ -37,9 +39,7 @@ def parse_hotel_results(result: dict) -> list[HotelInfo]:
     # Sort hotels by rating in descending order
     hotels_data.sort(key=lambda x: float(x.get("overall_rating") or 0), reverse=True)
 
-    top_five = hotels_data[:5]
-
-    for prop in top_five:
+    for prop in hotels_data:
         name = prop.get("name", "Unknown Hotel")
         images = prop.get("images", [])
         image_url = (
@@ -48,6 +48,8 @@ def parse_hotel_results(result: dict) -> list[HotelInfo]:
         rate_info = prop.get("rate_per_night", {})
         price_per_night = rate_info.get("lowest", "N/A")
         rating = str(prop.get("overall_rating", "N/A")) + " ⭐"
+        amenities = prop.get("amenities", [])
+        essential_info = str(prop.get("essential_info", "N/A"))
 
         hotels.append(
             HotelInfo(
@@ -55,6 +57,8 @@ def parse_hotel_results(result: dict) -> list[HotelInfo]:
                 image_url=image_url,
                 price_per_night=price_per_night,
                 rating=rating,
+                amenities=amenities,
+                essential_info=essential_info,
             )
         )
 
@@ -68,15 +72,32 @@ def parse_restaurant_results(result: dict) -> list[RestaurantInfo]:
     # Sort restaurants by rating in descending order
     restaurants.sort(key=lambda r: float(r.get("rating") or 0), reverse=True)
 
-    top_five = restaurants[:5]
-
     return [
         RestaurantInfo(
             title=restaurant.get("title", "Unknown"),
-            image_url=restaurant.get("thumbnail", None)
-            or restaurant.get("photo", None),
+            image_url=restaurant.get("thumbnail", None),
+            address=restaurant.get("address", "N/A") or restaurant.get("photo", None),
+            operating_hours=str(restaurant.get("operating_hours", "N/A")),
+            extensions=restaurant.get("extensions", {}),
             rating=str(restaurant.get("rating", "N/A")) + " ⭐",
-            address=restaurant.get("address", "N/A"),
+            price=str(restaurant.get("price", "N/A")),
         )
-        for restaurant in top_five
+        for restaurant in restaurants
     ]
+
+def parse_json_from_ai_output(output: str) -> dict:
+    """
+    Extracts and parses JSON from an AI model output string.
+    Handles markdown code blocks and plain JSON strings.
+    """
+    # Try extracting JSON from code block
+    match = re.search(r"```(?:json)?\s*({.*?})\s*```", output, re.DOTALL)
+    if match:
+        json_str = match.group(1)
+    else:
+        json_str = output.strip()
+
+    try:
+        return json.loads(json_str)
+    except json.JSONDecodeError:
+        raise ValueError("AI output is not valid JSON")
