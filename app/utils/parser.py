@@ -1,7 +1,6 @@
 # parser.py
-import json
-import re
-from app.models.schema import FlightInfo, HotelInfo, RestaurantInfo
+
+from app.models.schema import FlightInfo, HotelInfo
 
 
 def parse_flight_results(result: dict) -> list[FlightInfo]:
@@ -63,41 +62,3 @@ def parse_hotel_results(result: dict) -> list[HotelInfo]:
         )
 
     return hotels
-
-
-def parse_restaurant_results(result: dict) -> list[RestaurantInfo]:
-    """Extracts and returns the top 5 restaurants sorted by rating."""
-    restaurants = result.get("local_results", [])
-
-    # Sort restaurants by rating in descending order
-    restaurants.sort(key=lambda r: float(r.get("rating") or 0), reverse=True)
-
-    return [
-        RestaurantInfo(
-            title=restaurant.get("title", "Unknown"),
-            image_url=restaurant.get("thumbnail", None),
-            address=restaurant.get("address", "N/A") or restaurant.get("photo", None),
-            operating_hours=str(restaurant.get("operating_hours", "N/A")),
-            extensions=restaurant.get("extensions", {}),
-            rating=str(restaurant.get("rating", "N/A")) + " ⭐",
-            price=str(restaurant.get("price", "N/A")),
-        )
-        for restaurant in restaurants
-    ]
-
-def parse_json_from_ai_output(output: str) -> dict:
-    """
-    Extracts and parses JSON from an AI model output string.
-    Handles markdown code blocks and plain JSON strings.
-    """
-    # Try extracting JSON from code block
-    match = re.search(r"```(?:json)?\s*({.*?})\s*```", output, re.DOTALL)
-    if match:
-        json_str = match.group(1)
-    else:
-        json_str = output.strip()
-
-    try:
-        return json.loads(json_str)
-    except json.JSONDecodeError:
-        raise ValueError("AI output is not valid JSON")

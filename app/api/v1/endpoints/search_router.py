@@ -6,8 +6,6 @@ from app.models.schema import (
     FlightInfo,
     HotelRequest,
     HotelInfo,
-    RestaurantRequest,
-    RestaurantInfo,
     RecommendationRequest,
     RecommendationResponse,
 )
@@ -16,7 +14,6 @@ from app.utils.custom_error import handle_custom_error
 from app.utils.parser import (
     parse_flight_results,
     parse_hotel_results,
-    parse_restaurant_results,
 )
 from app.service.ai_service import generate_recommendation
 from app.core.logger import get_logger
@@ -92,39 +89,6 @@ async def search_hotels(request: HotelRequest):
         return []
 
 
-# Endpoint for searching restaurants
-@router.post("/search/restaurants", response_model=list[RestaurantInfo])
-async def search_restaurants(request: RestaurantRequest):
-    try:
-
-        # Logger instance
-        logger.info(f"Received restaurant search request")
-
-        # Query for restaurant search
-        query = {
-            "q": request.resturant_type,
-            "ll": f"@{request.latitude},{request.longitude},1z",
-        }
-
-        # Removing null values
-        query = {k: v for k, v in query.items() if v is not None}
-
-        # Performing search request
-        result = await SerpAPIService.search_restaurants(query)
-
-        logger.info("Restaurant search successful")
-
-        parsed_result = parse_restaurant_results(result)
-
-        # Returning parsed restaurant results
-        return parsed_result
-
-    except Exception as e:
-        logger.error(f"Error in search_restaurants: {str(e)}")
-        handle_custom_error(e)
-        return []
-
-
 # AI Recommendation Endpoint
 @router.post("/recommendations", response_model=RecommendationResponse)
 async def get_ai_recommendations(request: RecommendationRequest):
@@ -137,16 +101,12 @@ async def get_ai_recommendations(request: RecommendationRequest):
 
         hotel_data = await generate_recommendation("hotels", request.hotels)
 
-        restaurant_data = await generate_recommendation("restaurants", request.restaurants)
-
         logger.info("AI recommendation generation successful")
-
 
         # Returning AI Responses
         return RecommendationResponse(
             ai_flight_recommendation=flight_data,
             ai_hotel_recommendation=hotel_data,
-            ai_restaurant_recommendation=restaurant_data,
         )
 
     except Exception as e:

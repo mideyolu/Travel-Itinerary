@@ -25,13 +25,3 @@ class SerpAPIService:
             engine="google_hotels", query=query, error_context="Hotel Search"
         )
 
-    # Restaurant Search Function
-    @staticmethod
-    async def search_restaurants(query: dict):
-        """
-        Search for restaurants using the SerpAPI service.
-        """
-
-        return await make_serpapi_request(
-            engine="google_maps", query=query, error_context="Restaurant Search"
-        )

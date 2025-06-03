@@ -3,7 +3,7 @@
 import json
 import re
 from typing import List
-from app.agents.ai_agents import flight_agent, hotel_agent, restaurant_agent
+from app.agents.ai_agents import flight_agent, hotel_agent
 
 from app.core.logger import get_logger
 
@@ -22,7 +22,7 @@ async def generate_recommendation(category: str, items: List):
     agent = {
         "flights": flight_agent,
         "hotels": hotel_agent,
-        "restaurants": restaurant_agent,
+
     }.get(category)
 
     if not agent:

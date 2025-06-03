@@ -35,16 +35,6 @@ class HotelRequest(BaseModel):
     # New default fields
     gl: str = Field("ng", description="Google location")
 
-
-# Restaurant Request Schema
-class RestaurantRequest(BaseModel):
-    resturant_type: str = Field(
-        ..., example="pizza", description="City to search restaurants in"
-    )
-    latitude: float = Field(..., example=37.7749, description="Latitude of location")
-    longitude: float = Field(..., example=-122.4194, description="Longitude of location")
-
-
 # ------------------------------
 # Information Response Schema
 
@@ -68,35 +58,13 @@ class HotelInfo(BaseModel):
     essential_info: Optional[str] = None
     price_per_night: Optional[str] = None
 
-# Restaurant Information Schema
-class RestaurantInfo(BaseModel):
-    title: str
-    image_url: Optional[str] = None  # Restaurant image/thumbnail
-    address: str
-    operating_hours: Optional[str] = None
-    extensions: Optional[List[dict]] = None
-    rating: Optional[str] = None
-    price: Optional[str] = None
-
-
-# AI Response Schema
-class AIResponse(BaseModel):
-    flights: Optional[list[FlightInfo]] = None
-    hotels: Optional[list[HotelInfo]] = None
-    restaurants: Optional[list[RestaurantInfo]] = None
-    ai_flight_recommendation: Optional[str] = None
-    ai_hotel_recommendation: Optional[str] = None
-    ai_resturant_recommendation: Optional[str] = None
-
 
 # Recommendation Request Schema
 class RecommendationRequest(BaseModel):
     flights: List[FlightInfo]
     hotels: List[HotelInfo]
-    restaurants: List[RestaurantInfo]
 
 # Recommendation Response Model
 class RecommendationResponse(BaseModel):
-    ai_flight_recommendation: Optional[str]
-    ai_hotel_recommendation: Optional[str]
-    ai_restaurant_recommendation: Optional[str]
+    ai_flight_recommendation: Optional[dict]
+    ai_hotel_recommendation: Optional[dict]
