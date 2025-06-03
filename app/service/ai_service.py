@@ -1,18 +1,23 @@
 # ai_service.py
+
+import json
+import re
 from typing import List
 from app.agents.ai_agents import flight_agent, hotel_agent, restaurant_agent
-from agno.utils.pprint import pprint_run_response
+
+from app.core.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 async def generate_recommendation(category: str, items: List):
+
+    logger.info(f"Generating recommendation for category: {category} with {len(items)} items.")
+
     if not items:
+        logger.error(f"No items provided for category: {category}")
         return f"No {category} available for recommendation."
-
-    items_dict = [
-        items.__dict__ if hasattr(items, "__dict__") else items for items in items
-    ]
-
-    prompt = f"Given the provided {category} options, please recommend the best one:\n\n{items_dict}"
 
     agent = {
         "flights": flight_agent,
@@ -21,12 +26,22 @@ async def generate_recommendation(category: str, items: List):
     }.get(category)
 
     if not agent:
+        logger.error(f"No agent found for category: {category}")
         return f"No AI recommendation available for {category} yet."
 
+    prompt = f"Given the provided {category} options, please recommend the best one:\n\n{items}"
+
     response = agent.run(message=prompt)
+    raw_output = str(response.content)
 
-    formatted_response = pprint_run_response(response, markdown=False, show_time=True)
+    print(raw_output)
 
-    print(f"Generated {category} recommendation:", formatted_response)
-
-    return formatted_response
+    # Remove triple backticks and extract JSON safely
+    try:
+        json_str = re.search(r"\{.*\}", raw_output, re.DOTALL).group()
+        parsed_output = json.loads(json_str)
+        print(parsed_output)
+        return parsed_output
+    except Exception as e:
+        logger.error(f"Failed to parse JSON for {category}: {e}")
+        return f"Failed to parse AI response for {category}."
