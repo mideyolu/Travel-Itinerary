@@ -4,9 +4,6 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import date
 
-# -----------------------------
-# Request Schemas
-
 # Flight Request Schema
 class FlightRequest(BaseModel):
     departure_id: str = Field(
@@ -23,6 +20,17 @@ class FlightRequest(BaseModel):
     gl: str = Field("ng", description="Google location")
 
 
+# Flight Information Schema
+class FlightInfo(BaseModel):
+    airline: str
+    airline_logo: Optional[str] = None
+    travel_class: str
+    price: str
+    duration: str
+    stops: int
+    departure: str
+    arrival: str
+
 # Hotel Request Schema
 class HotelRequest(BaseModel):
     arrival_id: str = Field(
@@ -35,30 +43,13 @@ class HotelRequest(BaseModel):
     # New default fields
     gl: str = Field("ng", description="Google location")
 
-
-# ------------------------------
-# Information Response Schema
-
-# Flight Information Schema
-class FlightInfo(BaseModel):
-    airline: str
-    airline_logo: Optional[str] = None  # Airline logo URL
-    travel_class: str
-    price: str
-    duration: str
-    stops: int
-    departure: str
-    arrival: str
-
 # Hotel Information Schema
 class HotelInfo(BaseModel):
     name: str
-    image_url: Optional[str] = None  # Hotel image/thumbnail
+    image_url: Optional[str] = None
     rating: Optional[str] = None
-    amenities: Optional[List[str]] = None  # List of hotel amenities
-    essential_info: Optional[str] = None
+    amenities: Optional[List[str]] = None
     price_per_night: Optional[str] = None
-
 
 # Recommendation Request Schema
 class RecommendationRequest(BaseModel):
@@ -70,8 +61,6 @@ class RecommendationResponse(BaseModel):
     ai_flight_recommendation: Optional[dict]
     ai_hotel_recommendation: Optional[dict]
 
-
-
 # Itinerary Request Schema
 class ItineraryRequest(BaseModel):
     destination: str = Field(
@@ -82,16 +71,18 @@ class ItineraryRequest(BaseModel):
     check_in_date: date = Field(..., description="Check-in date")
     check_out_date: date = Field(..., description="Check-out date")
 
-
+# Itinerary Activity Schema
 class ItineraryActivity(BaseModel):
     time: str
     activity: str
 
+# Itinerary Day Schema
 class ItineraryDay(BaseModel):
     day: str
     activities: List[ItineraryActivity]
     restaurant: dict
 
+# Itinerary Response Schema
 class ItineraryResponse(BaseModel):
     destination: str
     check_in_date: date
