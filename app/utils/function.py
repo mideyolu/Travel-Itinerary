@@ -4,7 +4,8 @@ import httpx
 from app.core.config import settings
 from app.utils.custom_error import CustomAPIError
 import logging
-
+import re, json
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -40,3 +41,22 @@ async def make_serpapi_request(
     except Exception as e:
         logger.error(f"Error during {error_context} request: {str(e)}")
         raise CustomAPIError(details=f"Failed to fetch {error_context} info: {str(e)}")
+
+
+def clean_json_response(text: str) -> str:
+    return re.sub(r"^```(?:json)?\n|\n```$", "", text.strip())
+
+
+def extract_json_from_response(raw_output: str) -> Optional[dict]:
+    """Safely extract JSON object from raw string response."""
+    try:
+        json_str_match = re.search(r"\{.*\}", raw_output, re.DOTALL)
+        if json_str_match:
+            json_str = json_str_match.group()
+            return json.loads(json_str)
+        else:
+            logger.error("No JSON found in agent response")
+            return None
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {str(e)}")
+        return None

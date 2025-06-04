@@ -35,6 +35,7 @@ class HotelRequest(BaseModel):
     # New default fields
     gl: str = Field("ng", description="Google location")
 
+
 # ------------------------------
 # Information Response Schema
 
@@ -68,3 +69,35 @@ class RecommendationRequest(BaseModel):
 class RecommendationResponse(BaseModel):
     ai_flight_recommendation: Optional[dict]
     ai_hotel_recommendation: Optional[dict]
+
+
+
+# Itinerary Request Schema
+class ItineraryRequest(BaseModel):
+    destination: str = Field(
+        ..., example="Paris", description="Travel destination city"
+    )
+    flight: FlightInfo = Field(..., description="Recommended flight option")
+    hotel: HotelInfo = Field(..., description="Recommended hotel option")
+    check_in_date: date = Field(..., description="Check-in date")
+    check_out_date: date = Field(..., description="Check-out date")
+
+
+class ItineraryActivity(BaseModel):
+    time: str
+    activity: str
+
+class ItineraryDay(BaseModel):
+    day: str
+    activities: List[ItineraryActivity]
+    restaurant: dict
+
+class ItineraryResponse(BaseModel):
+    destination: str
+    check_in_date: date
+    check_out_date: date
+    num_days: str
+    daily_plan: List[ItineraryDay]
+    transport_tips: str
+    flight_info: str
+    hotel_info: str

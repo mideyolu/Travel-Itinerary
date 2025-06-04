@@ -60,7 +60,7 @@ hotel_agent = Agent(
 
     {
     "recommendation": string,          // 100-word balanced recommendation naming the hotel
-    "value_explanation": string,       // Explanation focusing on quality, location, and comfort (not price-centric)
+"value_explanation": string,       // Explanation focusing on quality, location, and comfort (not price-centric)
     "hotel_details": {
         "name": string,
         "price_per_night": string,
@@ -75,38 +75,62 @@ hotel_agent = Agent(
     """,
 )
 
-# Restaurant Recommendation Agent
-restaurant_agent = Agent(
-    name="Restaurant Search Recommendation Agent",
-    role="Handle restaurant recommendations based on received data.",
+# Itinerary Recommendation Agent
+itinerary_agent = Agent(
+    name="Itinerary Planning Agent",
+    role= "Design a comprehensive day-by-day itinerary for a trip based on provided destination, travel dates, recommended flights, and hotels.",
     model=llm_model,
     description="""
-    From the list of restaurants provided, recommend the one that offers the best dining experience overall.
-
-    **Reasoning for Recommendation:**
-    - **Rating:** Emphasize the quality of food and service based on ratings and reviews.
-    - **Cuisine & Ambience:** Consider the uniqueness or suitability of cuisine type and atmosphere.
-    - **Dining Features:** Look at accessibility, service options, dining style, and special features like outdoor seating, kid-friendliness, etc.
-    - **Hours:** Make sure it aligns with common dining times or user needs.
-    - **Price:** Only factor in price if it adds to a great experience—not as the primary decision maker.
-
-    Return ONLY a JSON object with the following keys (no triple backticks):
+    You are Trekly and advanced AI Itinerary Planner Agent. Your task is to create a detailed day-by-day itinerary for a trip based on the provided user destination, check-in and check-out dates, recommended flights, and hotels. Your output must ONLY be a JSON object with the following structure:
 
     {
-    "recommendation": string,           // A 100-word clear recommendation naming the restaurant
-    "value_explanation": string,        // Explanation focused on overall experience, not just cost
-    "restaurant_details": {
-        "name": string,
-        "price_range": string,
-        "rating": float,
-        "cuisine": string,
-        "location": string,
-        "features": [string]
-    }
-    }
+        "daily_plan": [
+                {
+                    "day": "Day 1",
+                    "activities": [
+                        {
+                            "time": "09:00 AM", "activity": "Visit the Eiffel Tower"
+                        },
+                        {
+                            "time": "12:00 PM","activity": "Lunch at a local café"
+                        },
+                        {
+                            "time": "06:00 PM",
+                            "activity": "Explore the bowling streets of Montmartre"
+                        }
+                    ],
+                    "restaurant": {
+                        "name": "Le Relais de l'Entrecôte",
+                        "cuisine": "French",
+                        "tip": "Try the steak-frites and their secret sauce.",
 
-    Be thoughtful and experience-oriented.
-    Here are the restaurant options:
-    {items_dict}
-    """,
+                }
+            },
+            ...
+        ],
+        "num_days": "{num_days}",
+        "transport_tips": "Use an Uber or local taxi service for convenient transport around the city.",
+        "flight_info": "You will be arriving with {flight_details} - wishing you a pleasant journey!",
+        "hotel_info": "You will be staying at {hotel_details} - known for its excellent service and comfort, wishing you a pleasant stay!",
+        "check_in_date": "{check_in}",
+        "check_out_date": "{check_out}",
+        "destination": "{destination}"
+    }
+    **Rules:**
+    - Plan activities for each full day between check-in and check-out.
+    - Day 1 can include light activities after arrival.
+    - Include only 2-3 meaningful activities per day.
+    - Restaurant suggestions should be local gems.
+    - Use the provided hotel and flight details.
+    - Use emojis to enhance the itinerary.
+    - Ensure the itinerary is engaging and practical.
+    - Do not exceed 300 words total. Only return JSON — no markdown.
+
+    Here is the user context:
+    - Destination: {destination}
+    - Check-in: {check_in}
+    - Check-out: {check_out}
+    - Flight: {flight_details}
+    - Hotel: {hotel_details}
+    """
 )

@@ -8,6 +8,8 @@ from app.models.schema import (
     HotelInfo,
     RecommendationRequest,
     RecommendationResponse,
+    ItineraryRequest,
+    ItineraryResponse
 )
 from app.service.search_service import SerpAPIService
 from app.utils.custom_error import handle_custom_error
@@ -15,7 +17,8 @@ from app.utils.parser import (
     parse_flight_results,
     parse_hotel_results,
 )
-from app.service.ai_service import generate_recommendation
+from app.service.itinerary_service import generate_itinerary_plan
+from app.service.recommendation_service import generate_recommendation
 from app.core.logger import get_logger
 
 router = APIRouter()
@@ -90,30 +93,59 @@ async def search_hotels(request: HotelRequest):
 
 
 # AI Recommendation Endpoint
-@router.post("/recommendations", response_model=RecommendationResponse)
+@router.post("/ai/recommendations", response_model=RecommendationResponse)
 async def get_ai_recommendations(request: RecommendationRequest):
     try:
-        # Logger instance
-        logger.info(f"Received AI recommendation request")
+        logger.info("Received AI Recommendation Request")
 
-        # Generating AI Recommendations
+        # Validate request data
+        if not all ([request.flights or not request.hotels]):
+            logger.error("Flights or Hotels input missing in request")
+            return []
+
+        # Generate recommendations
         flight_data = await generate_recommendation("flights", request.flights)
-
         hotel_data = await generate_recommendation("hotels", request.hotels)
 
         logger.info("AI recommendation generation successful")
 
-        # Returning AI Responses
         return RecommendationResponse(
             ai_flight_recommendation=flight_data,
             ai_hotel_recommendation=hotel_data,
         )
 
     except Exception as e:
-        logger.error(f"Error in get_ai_recommendations: {str(e)}")
+        logger.error(f"Error in Generating AI Recommendations: {str(e)}")
         handle_custom_error(e)
-        return RecommendationResponse(
-            ai_flight_recommendation=None,
-            ai_hotel_recommendation=None,
-            ai_restaurant_recommendation=None,
+        return []
+
+# Itinerary Endpoint
+@router.post("/ai/itinerary", response_model=ItineraryResponse)
+async def generate_itinerary(request: ItineraryRequest):
+    try:
+        logger.info("Received Request for Itinerrary Generation")
+
+        # Validate request data
+        if not all ([request.destination, request.flight, request.check_in_date,
+                     request.check_out_date, request.hotel]):
+
+            logger.error("Invalid request data for itinerary generation")
+            return []
+
+        # Generate itinerary plan using AI service
+        itinerary = await generate_itinerary_plan(
+            destination=request.destination,
+            check_in=request.check_in_date,
+            check_out=request.check_out_date,
+            flight=request.flight,
+            hotel=request.hotel,
         )
+
+        logger.info("AI Itinerary Generation Successful")
+
+        return itinerary
+
+    except Exception as e:
+        logger.error(f"Error in Generating Itinerary: {str(e)}")
+        handle_custom_error(e)
+        return []
