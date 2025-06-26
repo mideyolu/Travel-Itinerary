@@ -8,3 +8,6 @@ from app.core.exceptions import ItineraryPlannerAgentError, MissingParameterErro
 from app.utils.request import run_agent_with_retries
 
 
+def generate_itinerary(request: ItineraryPlanRequest):
+
+    pass
