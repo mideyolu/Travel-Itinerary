@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel
 from typing import List, Optional
+from app.models.itinerary_schemas import DayPlan
 
 # Request Model
 class FlightSearchRequest(BaseModel):
@@ -18,6 +19,12 @@ class HotelSearchRequest(BaseModel):
     check_in_date: str
     check_out_date: str
     currency: Optional[str] = "USD"
+
+class ItineraryPlanRequest(BaseModel):
+    """Model for itineray travel plan request."""
+    destination: str
+    check_in_date: str
+    check_out_date: str
 
 # Response Model
 class FlightDetails(BaseModel):
@@ -38,10 +45,11 @@ class HotelDetails(BaseModel):
     amenities: Optional[List[str]] = None
     price_per_night: Optional[str] = None
 
-class TravelPlanRequest(BaseModel):
-    """Model for travel plan request."""
+class ItineraryDetails(BaseModel):
+    """Model for itinerary response."""
     destination: str
-    duration: int
+    num_days: str
+    daily_plan: List[DayPlan]
     check_in_date: str
     check_out_date: str
 
@@ -58,41 +66,7 @@ class HotelRecommendation(BaseModel):
     hotel_details: HotelDetails
     source_link: Optional[str] = None
 
-# Itineray plan generic schemas
-# Resturant
-class Resturant(BaseModel):
-    """Model for restaurant details."""
-    name: str
-    cuisine: str
-
-# Activity
-class Activity(BaseModel):
-    """Model for activity details."""
-    time: str
-    activity: str
-
-# Day Plan
-class DayPlan(BaseModel):
-    """Model for daily itinerary plan."""
-    day: str
-    activities: List[Activity]
-    restaurant: Resturant
-
-class ItineraryRequest(BaseModel):
-    """Model for itinerary request."""
-    origin: str
-    destination: str
-    departure_date: str
-    return_date: str
-
-class ItineraryPlan(BaseModel):
-    """Model for itinerary response."""
-    destination: str
-    daily_plan: List[DayPlan]
-    num_days: str
+class ItineraryRecommendation(BaseModel):
+    itinerary_details: ItineraryDetails
     transport_tips: str
-    flight_info: str
-    hotel_info: str
-    check_in_date: str
-    check_out_date: str
-    destination: str
+    expectation: str
