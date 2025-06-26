@@ -15,6 +15,10 @@ REQUIRED_FLIGHT_FIELDS = [
 
 REQUIRED_HOTEL_FIELDS = ["name", "image_url", "rating", "amenities", "price_per_night"]
 
+REQUIRED_ITINERARY_FIELDS =[
+    "destination", "num_days", "transport_tips", "daily_plan" ,"restaurant", "check_in_date","check_out_date"
+]
+
 
 def validate_required_fields(
     data: dict, parent_key: str, required_fields: List[str]
@@ -45,3 +49,7 @@ def validate_flight_data(data: dict) -> bool:
 def validate_hotel_data(data: dict) -> bool:
     """Validate hotel response."""
     return validate_required_fields(data, "hotel_details", REQUIRED_HOTEL_FIELDS)
+
+def validate_itinerary_data(data: dict) -> bool:
+    """Validate itinerary response."""
+    return validate_required_fields(data, "itinerary_details", REQUIRED_ITINERARY_FIELDS)
