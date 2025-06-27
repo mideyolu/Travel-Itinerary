@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 from typing import List
 
-
-# Itineray plan generic schemas
-# Resturant
-class Resturant(BaseModel):
+# Itinerary plan generic schemas
+# Restaurant
+class Restaurant(BaseModel):
     """Model for restaurant details."""
     name: str
     cuisine: str
+    tip: str
 
 # Activity
 class Activity(BaseModel):
@@ -20,4 +20,4 @@ class DayPlan(BaseModel):
     """Model for daily itinerary plan."""
     day: str
     activities: List[Activity]
-    restaurant: Resturant
+    restaurant: Restaurant
