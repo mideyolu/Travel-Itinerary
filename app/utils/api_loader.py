@@ -21,20 +21,20 @@ class SerpApiTools:
         currency: str = "USD",
     ):
         """
-            Search for flights using SerpAPI's Google Flights engine.
+        Search for flights using SerpAPI's Google Flights engine.
 
-            Args:
-                departure_id (str): IATA code for departure airport
-                arrival_id (str): IATA code for arrival airport
-                outbound_date (str): Departure date in YYYY-MM-DD format
-                return_date (Optional[str]): Return date in YYYY-MM-DD format (optional for one-way trips)
-                currency (str): Currency code for pricing
+        Args:
+            departure_id (str): IATA code for departure airport
+            arrival_id (str): IATA code for arrival airport
+            outbound_date (str): Departure date in YYYY-MM-DD format
+            return_date (Optional[str]): Return date in YYYY-MM-DD format (optional for one-way trips)
+            currency (str): Currency code for pricing
 
-            Returns:
-                dict: Flight search results in SerpAPI's response format
+        Returns:
+            dict: Flight search results in SerpAPI's response format
 
-            Raises:
-                SerpApiServiceError: If the search fails or API returns an error
+        Raises:
+            SerpApiServiceError: If the search fails or API returns an error
         """
         try:
             params = {
@@ -62,19 +62,19 @@ class SerpApiTools:
         currency: str = "USD",
     ):
         """
-            Search for hotels using SerpAPI's Google Hotels engine.
+        Search for hotels using SerpAPI's Google Hotels engine.
 
-            Args:
-                arrival_id (str): IATA code (e.g. "CDG")
-                check_in_date (str): Check-in date in YYYY-MM-DD format
-                check_out_date (str): Check-out date in YYYY-MM-DD format
-                currency (str): Currency code for pricing
+        Args:
+            arrival_id (str): IATA code (e.g. "CDG")
+            check_in_date (str): Check-in date in YYYY-MM-DD format
+            check_out_date (str): Check-out date in YYYY-MM-DD format
+            currency (str): Currency code for pricing
 
-            Returns:
-                dict: Hotel search results in SerpAPI's response format
+        Returns:
+            dict: Hotel search results in SerpAPI's response format
 
-            Raises:
-                SerpApiServiceError: If the search fails or API returns an error
+        Raises:
+            SerpApiServiceError: If the search fails or API returns an error
         """
         try:
             params = {
@@ -95,16 +95,16 @@ class SerpApiTools:
 
     def search_google(self, query: str):
         """
-            Perform a general Google search through SerpAPI.
+        Perform a general Google search through SerpAPI.
 
-            Args:
-                query (str): The search query string
+        Args:
+            query (str): The search query string
 
-            Returns:
-                dict: Google search results in SerpAPI's response format
+        Returns:
+            dict: Google search results in SerpAPI's response format
 
-            Raises:
-                SerpApiServiceError: If the search fails or API returns an error
+        Raises:
+            SerpApiServiceError: If the search fails or API returns an error
 
         """
         try:

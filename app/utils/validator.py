@@ -1,6 +1,6 @@
 # utils/validator.py
 
-from typing import Dict, List
+from typing import List
 from app.core.exceptions import MissingParameterError
 
 # Required fields
@@ -16,9 +16,8 @@ REQUIRED_FLIGHT_FIELDS = [
 REQUIRED_HOTEL_FIELDS = ["name", "image_url", "rating", "amenities", "price_per_night"]
 
 REQUIRED_ITINERARY_FIELDS =[
-    "destination", "num_days", "transport_tips", "daily_plan" ,"restaurant", "check_in_date","check_out_date"
+    "destination", "num_days", "transport_tips", "daily_plan", "check_in_date","check_out_date"
 ]
-
 
 def validate_required_fields(
     data: dict, parent_key: str, required_fields: List[str]
@@ -52,4 +51,21 @@ def validate_hotel_data(data: dict) -> bool:
 
 def validate_itinerary_data(data: dict) -> bool:
     """Validate itinerary response."""
-    return validate_required_fields(data, "itinerary_details", REQUIRED_ITINERARY_FIELDS)
+
+    try:
+        # Ensure the main itinerary_details section is present
+        if not validate_required_fields(data, "itinerary_details", REQUIRED_ITINERARY_FIELDS):
+            return False
+
+        # Get the itinerary details section
+        itinerary = data.get("itinerary_details", {})
+
+        # Check if daily_plan is a list and not empty
+        for day in itinerary.get("daily_plan", []):
+            if not day.get("activities") or not day.get("restaurant"):
+                return False
+
+        return True
+
+    except Exception as e:
+        raise MissingParameterError(detail=f"Validation error: {str(e)}")
