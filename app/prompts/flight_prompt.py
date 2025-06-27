@@ -4,80 +4,85 @@ from app.models.schemas import FlightSearchRequest
 
 def build_flight_prompt(request: FlightSearchRequest) -> str:
     """
-    Build a prompt for the flight recommendation agent based on structured user input.
+    Build a prompt for the flight recommendation agent using structured input fields
 
     Args:
-        request (FlightSearchRequest): Object containing flight search input such as:
-                    (departure_id, arrival_id, outbound_date, return_date, and currency)
+        request (FlightSearchRequest): Object containing flight search input including:
+            - departure_id (can be airport code), - arrival_id (can be airport code)
+            - outbound_date, - return_date (optional), - currency (optional)
 
     Returns:
-        str: A formatted prompt string that instructs the LLM agent to use SerpAPI's
-             Google Flights engine
+        str: A structured prompt string instructing the LLM agent to search and recommend flights using SerpAPI tools.
     """
 
-    prompt = (
-        f"Search for flights from {request.departure_id} to {request.arrival_id} "
-        f"on {request.outbound_date}."
-    )
+    prompt = f"""
+        You are a part of Trekly — a travel assistant that uses the `google_flights` engine powered by SerpAPI,
+        and optionally `search_google` to supplement missing airline logo data.
 
-    if request.return_date:
-        prompt += f" Return on {request.return_date}."
+        You are tasked to recommend the best flight based on the following user input:
 
-    prompt += f" Show prices in {request.currency or 'USD'}."
+        - From: `{request.departure_id}` (This may be an airport code — resolve only if needed)
+        - To: `{request.arrival_id}` (This may be an airport code — resolve only if needed)
+        - Outbound Date: `{request.outbound_date}`
+        {"- Return Date: `" + request.return_date + "`" if request.return_date else ""}
+        - Currency: `{request.currency or "USD"}`
 
-    prompt += f"""
-        You are a part of Trekly a travel assistant using the `google_flights` engine, which is connected to the SerpAPI.
+        ---
+        Instructions:
 
-        Your job is to:
-        1. Perform a real-time flight search based on the user's request.
-        2. You **must** use the SerpAPI Google Flights engine. The returned JSON contains either `best_flights` or `other_flights` fields.
-        3. Extract all required flight information **from the SerpAPI response** fields — do **not guess** or make up any value.
+        Step 1 — Flight Search:
+        Perform a real-time flight search using the `google_flights` engine from SerpAPI using the above parameters.
 
-        From the flight response, extract:
-        - `airline`: from `airline` inside each flight object
-        - `airline_logo`: from `airline_logo`
-        - `departure`: name of the first `departure_airport.name`
-        - `arrival`: name of the last `arrival_airport.name`
-        - `departure_time`: from the first `departure_airport.time`
-        - `arrival_time`: from the last `arrival_airport.time`
-        - `duration`: sum or description of total duration across all segments
-        - `travel_class`: from `travel_class`
-        - `price`: if available, from the aggregated pricing (add currency symbol)
+        Step 2 — Data Extraction:
+        From the API response, extract flight options from both `best_flights` and `other_flights`. From each flight, gather:
+        - `airline`
+        - `airline_logo`
+        - `departure`: First `departure_airport.name`
+        - `arrival`: Last `arrival_airport.name`
+        - `departure_time`: First `departure_airport.time`
+        - `arrival_time`: Last `arrival_airport.time`
+        - `duration`: Full trip duration (formatted as string)
+        - `travel_class`
+        - `price` (include currency symbol)
 
-        4. **DO NOT** fabricate any data. If any critical field is missing, discard that flight or log as null.
+        Step 3 — Logo Fallback:
+        If `airline_logo` is missing, perform a secondary lookup using `search_google` with the query:
+        `{{airline name}} logo PNG` and extract a logo URL if possible.
 
-        5. Select the **most balanced option** using the `best_flights` list if available, falling back to `other_flights`.
+        Step 4 — Flight Comparison:
+        Evaluate at least 3 options before selecting the final recommendation.
+        Prioritize based on:
+        - Travel comfort (class, layovers)
+        - Convenience (departure/arrival timing)
+        - Overall duration
+        - Price (only when it significantly improves value)
 
-        6. If `airline_logo` is missing, perform a secondary `search_google` using this format:
-        "{{airline name}} logo PNG" and extract a logo URL if possible.
+        Avoid overly early or late flights unless they offer outstanding benefits.
 
-        Respond strictly in this format:
+        ---
+        Your response must strictly follow this JSON format:
         {{
             "flight_details": {{
-                "airline": string,
-                "airline_logo": string or null,
-                "travel_class": string,
-                "price": string,         // include currency symbol
-                "duration": string,      // include minutes or hrs symbol at the end
-                "departure": string,
-                "arrival": string,
-                "departure_time": string,
-                "arrival_time": string
+                "airline": "Air France",
+                "airline_logo": "https://example.com/logo.png",
+                "travel_class": "Economy",
+                "price": "USD 425",
+                "duration": "7h 45m",
+                "departure": "JFK International Airport",
+                "arrival": "Charles de Gaulle Airport",
+                "departure_time": "10:30 AM",
+                "arrival_time": "12:15 AM"
             }},
-            "recommendation": string,
-            "value_explanation": string,
-            "source_link": string
+            "recommendation": "Air France offers a balanced option with a comfortable economy class and direct routing.",
+            "value_explanation": "This flight offers a good mix of comfort, timing, and competitive pricing — making it ideal for most travelers.",
+            "source_link": "https://www.example.com/booking"
         }}
 
-        Recommendation Criteria:
-        - Comfort (travel class, amenities, layovers) : Consider factors like travel class, and duration that impact the passenger's experience.
-        - Convenience: Evaluate timing (departure/arrival), and total duration in terms of travel ease.
-        - Price vs value : if it contributes meaningfully to the overall recommendation—don't prioritize it above comfort and convenience.
-        - Travel Class: Explain why the comfort and benefits of the travel class stand out.
-        - Airline reliability
-
-        User Request:
-        {prompt}
+        ---
+        Final Notes:
+        - Do not fabricate any information.
+        - If required fields are missing, discard that flight.
+        - Return only a single JSON object in the specified format with no introductory or closing text.
     """
 
     return prompt.strip()

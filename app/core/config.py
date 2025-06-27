@@ -4,7 +4,6 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Application configuration settings."""
-
     PROJECT_NAME: str = "Trekly"
     API_VERSION: str = "/api/v1"
     GEMINI_API_KEY: str

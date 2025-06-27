@@ -1,9 +1,9 @@
 # prompts/itinerary_prompt.py
 
-from app.models.schemas import TravelPlanRequest
+from app.models.schemas import ItineraryPlanRequest
 
 
-def build_itinerary_prompt(request: TravelPlanRequest) -> str:
+def build_itinerary_prompt(request: ItineraryPlanRequest) -> str:
     """
     Build a prompt for the itinerary generation agent using destination, check-in and check-out dates,
     with support from the `search_google` tool for location enrichment and itinerary generation.
