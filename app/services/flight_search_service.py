@@ -1,6 +1,6 @@
 # agent/flight_search_service.py
 
-from app.agents.flight_agent import flight_agent
+from app.agents.agents import flight_agent
 from app.prompts.flight_prompt import build_flight_prompt
 from app.utils.validator import validate_flight_data
 from app.models.schemas import FlightSearchRequest
@@ -9,20 +9,20 @@ from app.utils.request import run_agent_with_retries
 
 
 # Retruning flight recommended option
-def get_flight_options(request: FlightSearchRequest):
+async def get_flight_options(request: FlightSearchRequest):
     """
-    Run the flight recommendation agent using the SerpAPI Google Flights engine.
+        Run the flight search recommendation agent using the SerpAPI Google Flights engine.
 
-    Args:
-        request (FlightSearchRequest): Flight search input containing departure ID, arrival ID,
-                                       outbound date, return date (optional), and currency (optional).
+        Args:
+            request (FlightSearchRequest): Flight search input containing departure ID, arrival ID,
+                                        outbound date, return date (optional), and currency (optional).
 
-    Returns:
-        Dict: A JSON-compatible dictionary structured.
+        Returns:
+            Dict: A JSON-compatible dictionary structured.
 
-    Raises:
-        MissingParameterError: If the prompt is not provided.
-        FlightAgentError: If the agent fails after multiple attempts to return valid flight data.
+        Raises:
+            MissingParameterError: If the prompt is not provided.
+            FlightAgentError: If the agent fails after multiple attempts to return valid flight data.
     """
 
     # Enuse that all required parameters are present
@@ -36,7 +36,7 @@ def get_flight_options(request: FlightSearchRequest):
 
     # Attempt to get flight recommendation response
     try:
-        return run_agent_with_retries(
+        return await run_agent_with_retries(
             agent=flight_agent,
             prompt=prompt,
             validator_fn=validate_flight_data,

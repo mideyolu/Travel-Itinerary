@@ -1,6 +1,6 @@
 # agent/hotel_search_service.py
 
-from app.agents.hotel_agent import hotel_agent
+from app.agents.agents import hotel_agent
 from app.prompts.hotel_prompt import build_hotel_prompt
 from app.utils.validator import validate_hotel_data
 from app.models.schemas import HotelSearchRequest
@@ -8,7 +8,7 @@ from app.core.exceptions import HotelAgentError, MissingParameterError
 from app.utils.request import run_agent_with_retries
 
 # Retruning hotel recommended option
-def get_hotel_options(request: HotelSearchRequest ):
+async def get_hotel_options(request: HotelSearchRequest ):
     """
     Run the Hotel recommendation agent using the SerpAPI Google Flights engine.
 
@@ -23,7 +23,7 @@ def get_hotel_options(request: HotelSearchRequest ):
         HotelAgentError: If there is an error while retrieving Hotel options.
     """
     # Enuse that all required parameters are present
-    if not all([request.arrival_id, request.check_in_date, request.check_out_date]):
+    if not all([request.destination, request.check_in_date, request.check_out_date]):
         raise MissingParameterError(
             detail="All required hotel parameters must be provided to get a recommendation."
         )
@@ -33,7 +33,7 @@ def get_hotel_options(request: HotelSearchRequest ):
 
     # Attempt to get hotel recommendation response
     try:
-        return run_agent_with_retries(
+        return  await run_agent_with_retries(
             agent=hotel_agent,
             prompt=prompt,
             validator_fn=validate_hotel_data,
