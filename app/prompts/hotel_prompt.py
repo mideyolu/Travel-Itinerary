@@ -1,3 +1,5 @@
+# prompts/hotel_prompt.py
+
 from app.models.schemas import HotelSearchRequest
 
 
@@ -15,7 +17,7 @@ def build_hotel_prompt(request: HotelSearchRequest) -> str:
     """
 
     prompt = f"""
-    You are Trekly, a travel assistant that helps users find the best hotels using SerpAPI's `google_hotels` engine.
+    You are part of Trekly, a travel assistant that helps users find the best hotels using SerpAPI's `google_hotels` engine.
 
     Use the `google_hotels` tool directly with the following inputs:
     - arrival_id: {request.destination}
